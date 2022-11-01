@@ -24,7 +24,16 @@ void eat(int i);
 void test(int i);
 void take_forks(int i);
 void put_forks(int i);
-void *philosopher(void *id);
+
+void *philosopher(void *id) {
+    while (1) {
+        int i = *(int *)id;
+        think(i);
+        take_forks(i);
+        eat(i);
+        put_forks(i);
+    }
+}
 
 int main() {
     int i;
@@ -50,20 +59,20 @@ int main() {
 }
 
 void think(int i) {
-    int thinking_time = rand() % 2 + 1;
+    int thinking_time = rand() % 3 + 1;
     printf("Philosopher %d THINKING for %d seconds...\n", i + 1, thinking_time);
     sleep(thinking_time);
     printf("Philosopher %d HUNGRY\n", i + 1);
 }
 void eat(int i) {
-    int eating_time = rand() % 2 + 1;
+    int eating_time = rand() % 3 + 1;
     sleep(eating_time);
 }
 
 void test(int i) {
     if (state[i] == HUNGRY && state[LEFT] != EATING && state[RIGHT] != EATING) {
         state[i] = EATING;
-        printf("*** Philosopher %d took from %d and %d then begin EATING...\n", i + 1, LEFT + 1, RIGHT + 1);
+        printf("\n*** Philosopher %d took forks from %d and %d then begin EATING...\n", i + 1, LEFT + 1, RIGHT + 1);
         pthread_mutex_unlock(&s[i]);
     }
     else if (state[i] == EATING) {
@@ -87,20 +96,10 @@ void take_forks(int i) {
 
 void put_forks(int i) {
     pthread_mutex_lock(&mutex);
-    printf("*** Philosopher %d finished EATING...\n", i + 1);
+    printf("*** Philosopher %d finished EATING...\n\n", i + 1);
     state[i] = THINKING;
     printf("Philosopher %d puts down forks and then asks his neighbor wonder if they need\n", i + 1);
     test(LEFT);
     test(RIGHT);
     pthread_mutex_unlock(&mutex);
-}
-
-void *philosopher(void *id) {
-    while (1) {
-        int i = *(int *)id;
-        think(i);
-        take_forks(i);
-        eat(i);
-        put_forks(i);
-    }
 }
